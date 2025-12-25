@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chaotic Cafeteria Menu Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff9f0;
+      padding: 40px;
+      color: #4b3a2a;
+      text-align: center;
+    }
+    button {
+      font-size: 20px;
+      padding: 12px 24px;
+      background: #f06a3f;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #d85c2c;
+    }
+    #menuItem {
+      margin: 50px auto;
+      max-width: 250px;
+      min-height: 200px;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(240, 106, 63, 0.25);
+      white-space: pre-line;
+      font-size: 14px;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .title {
+      font-weight: 900;
+      font-size: 24px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      letter-spacing: 1.2px;
+      color: #f06a3f;
+    }
+    .price {
+      color: green;
+      font-weight: 700;
+      margin-top: 5px;
+      display: inline-block;
+    }
+    .red-flair {
+      color: red;
+      font-weight: 900;
+      font-size: 22px;
+      margin-left: 12px;
+      margin-top: 8px;
+      text-transform: uppercase;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Cafeteria Menu Generator</h1>
+  <button onclick="generateMenuItem()">Generate Lunch Item</button>
+  <div id="menuItem"></div>
+
+  <script>
+    // === DATA ARRAYS ===
+    const proteins = ["ham and broccoli", "chicken parm", "ham", "roast of beef", "two eggs scrambled", "three eggs any style", "chicken", "shrimp", "ground beef", "turkey breast", "bacon", "roasted pork loin", "chorizo sausage", "tofu", "baby back ribs", "fresh sliced turkey", "roasted cod loins", "eggplant slices", "fresh mushrooms", "sausage", "avocado", "hard boiled egg", "roasted carrots", "falafel", "salmon", "pulled pork", "burger"];
+    const veggies = ["veggie", "carrot", "broccoli", "spinach", "kale", "zucchini", "eggplant", "cauliflower", "cabbage", "lettuce", "beet", "radish", "celery", "cucumber", "asparagus", "turnip", "artichoke", "leek", "okra", "parsnip", "arugula", "chard", "fennel", "rutabaga", "bok choy", "pea", "green bean", "brussels sprout", "sweet potato", "yam", "pumpkin"];
+    const extraIngredient = ["toast", "baby spinach", "1000 island dressing", "feta", "cheddar", "pepperjack", "swiss", "mozzarella", "ricotta", "enchilada sauce", "BBQ sauce", "hot honey mustard sauce", "tartar sauce", "lemon piccata sauce", "spicy gochujang sauce", "marinara sauce", "turkey gravy", "croutons", "bacon bits", "sesame seeds", "fried onions", "toasted almonds", "pumpkin seeds", "parmesan", "sour cream", "guacamole", "chimichurri", "pesto", "aioli", "hot sauce", "pickled onions", "capers", "olives", "lemon wedge", "lime zest", "herb butter", "scallions", "cilantro", "dill", "chili flakes", "honey drizzle", "tzatziki"];
+    const toppings = ["enchilada sauce", "BBQ sauce", "hot honey mustard sauce", "tartar sauce", "lemon piccata sauce", "spicy gochujang sauce", "marinara sauce", "turkey gravy", "feta", "cheddar", "pepperjack", "swiss", "mozzarella", "ricotta"];
+    const cookingVerbs = ["sundried", "tenderized", "golden roasted", "diced", "pounded paper thin", "whipped", "roasted", "slow cooked", "fried", "sauteed", "tossed", "baked", "mixed"];
+    const combineVerb = ["being served with", "tossed together with", ", shake real hard..", "throw some with", "tucked gently with", "covered in", "slathered with", "shoved inside", "smothered with", "all wrapped up in", "surrounded by", "layered with", "blended with", "mixed with"];
+    const sidePhrases = ["(ask monday)", "served with choice of side", "served with home fries", "served with vegetables", "served with Spanish rice", "served with coleslaw and French fries", "served with a veggie", "served with a side of tartar sauce", "served with corn casserole and watermelon arugula salad", "served with rice", "served with potatoes and green beans"];
+    const pricesRaw = ["1.95", "2.95", "3.95", "4.95", "7.95", "8.25", "9.50", "7.50", "8.75", "6.95", "39.95", "1", "2", "3.50", "4.85", "7.97", "Market Price", "Six Easy Payments of only 9.99", "🤑"];
+    const flairWords = ["look what's back!!", "HERE COMES THE LUNCH LADY!!", "91 days to go!!", "Sweet spicy tangy", "Yummy!", "Made to order ☺", "SPICY!!!", "YEEHAW!!!", "OH MY!!", "BURN!", "HOT HOT HOT!", "FIRE!", "SCORCHING!", "☺☺☺", "EE I EE I O", "Old MacDonald special", "It may have a bourbon glaze when it's finished ☺", "Suppose to be runny..ain't doing that", "Fresh made and piping hot", "Just like Judy's"];
+    const adjectives = ["tender", "tender crisp", "gooey", "tangy yet sweet", "aromatic", "big", "spicy", "sweet", "savory", "tangy", "bitter", "umami", "zesty", "creamy", "crispy", "juicy", "fluffy", "rich", "buttery", "smoky", "tart", "earthy", "nutty", "fiery", "succulent", "refreshing", "chewy", "crumbly", "silky", "hearty", "fruity", "sour", "sweet"];
+    const bWord = ["bacon","bacon","bacon","bacon","bacon","bacon","bacon","bacon","bacon","bacon", "burger", "beef", "brisket", "beans", "bucatini", "broccoli", "bagel", "bologna", "brie", "boursin", "blue cheese"]
+    const lWord = ["lbacon","lettuce","lettuce","lettuce","lettuce","lettuce","lettuce","lettuce","lettuce","lettuce","lettuce", "legumes", "lime", "leeks", "lobster", "lentils", "lasagna", "lemon", "lingune"]
+    const tWord = ["tbacon", "tomato","tomato","tomato","tomato","tomato","tomato","tomato","tomato","tomato","tomato","tomato","tomato", "tortilla", "taco", "thyme", "turkey", "tuna", "turnip", "tofu", "toast", "tortellini", "taleggio", "triple cream brie"]
+
+
+    // === HELPERS ===
+    function random(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function capitalizeFirst(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // === DESCRIPTION GENERATOR ===
+function generateDescription(requiredIngredients, title) {
+  
+  const isBLT = title.toLowerCase().includes('blt');
+  let bltIngredients = [];
+
+  if (isBLT) {
+    bltIngredients = generateBLTIngredients();
+    // BLT FORMAT
+
+    const [b, l, t] = bltIngredients
+    let description = `B = ${b.toUpperCase()}\nL = ${l.toUpperCase()}\nT = ${t.toUpperCase()}`
+    
+    //price
+    const rawPrice = random(pricesRaw);
+    const price = rawPrice.startsWith("$") ? rawPrice : "$" + rawPrice;
+    description += `\n<div class="price">${price}</div>`;
+
+    if (Math.random() < 0.1 ) {
+      description += `\n<div class="red-flair">${random(flairWords)}</div>`;
+    }
+
+    return description.replace(/\n/g, '<br>');
+  }
+  
+  const mainProtein = requiredIngredients.find(i => proteins.includes(i)) || random(proteins);
+  const mainTopping = random(toppings);
+  const cookVerb = random(cookingVerbs);
+  const combine = random(combineVerb);
+  const adj1 = random(adjectives);
+  const extra1 = random(extraIngredient);
+  const adj2 = random(adjectives);
+  const extra2 = random(extraIngredient);
+  const side = random(sidePhrases);
+  const rawPrice = random(pricesRaw);
+  const bonus1 = random(extraIngredient);
+  const price = rawPrice.startsWith("$") ? rawPrice : "$" + rawPrice;
+
+  // --- Add opener at the beginning
+  let description = "";
+
+  if (Math.random() < 0.2) {
+    const openers = [
+      `Let's start with `,
+      `A flavor filled `,
+      `Try our `,
+      `Featuring `,
+      `Enjoy `,
+      `Savor `,
+      `Indulge in `,
+      `Our own `
+    ];
+    description += random(openers);
+  }
+
+  // Start with cooking verb if used
+  if (Math.random() < 0.5) description += `${cookVerb} `;
+
+  // Add main protein
+  description += `${mainProtein}`;
+
+  // Add main topping combination
+  if (Math.random() < 0.75) description += ` ${combine} ${mainTopping}`;
+
+  // --- Add extras with proper comma placement
+  const useExtra1 = Math.random() < 0.5;
+  const useExtra2 = useExtra1 && Math.random() < 0.3;
+
+  if (useExtra1) {
+    let extra = Math.random() < 0.5 ? `${adj1} ${extra1}` : extra1;
+    description += `, ${extra}`;
+  }
+
+  if (useExtra2) {
+    let extra = Math.random() < 0.3 ? `${adj2} ${extra2}` : extra2;
+    description += `, ${extra}`;
+  }
+
+  // Add side information
+  if (Math.random() < 0.8) {
+    description += `, ${side}`;
+  }
+
+  // Add closer to the same sentence
+  if (Math.random() < 0.1) {
+    const closers = [
+      `and that's what makes it a ${title.toLowerCase()}`,
+      `when all else fails throw in a ${title.toLowerCase()}`,
+      `named after Italian opera singer Luisa ${title.toLowerCase()}`,
+      `there may even be a ${bonus1}`,
+      `don't forget about our ${bonus1}`
+    ];
+    description += `, ${random(closers)}`;
+  }
+
+  // Capitalize first letter and add final period
+  description = capitalizeFirst(description.trim()) + ".";
+
+  // Build final output with separate lines only for price and flair
+  const lines = [description];
+
+  lines.push(`<div class="price">${price}</div>`);
+
+  if (Math.random() < 0.1) {
+    lines.push(`<div class="red-flair">${random(flairWords)}</div>`);
+  }
+
+  return lines.join("<br>");
+}
+
+
+
+    // === TITLE GENERATOR ===
+
+function generateTitle() {
+  const dishTypes = ["BLT", "BLT", "sub", "Dinner", "Breakfast", "Melt", "Curry", "Sandwich", "Spaghetti", "Pasta", "Mac-n-cheese", "Omelet", "Basket", "Bomb", "Sliders", "Salad", "Burrito", "Pot Pie", "Burger", "Parmasen", "Skewers", "Goulash", "Wrap", "Hot Dog", "Breakfast", "Club", "Ribs", "Lasagna", "Pancakes"];
+  const adj = ["Fresh", "Chef", "Thanksgiving", "Hot Honey-Mustard", "Hot Honey", "Sweet Chili", "Memphis", "Coney Island", "Rodeo", "Breakfast","Boston Baked", "Baked", "Grilled", "Roasted", "Fresh", "Classic", "Heavenly", "Smoked", "Spicy", "Baby Back", "Farmers", "Mango", "Boston Baked", "Italian", "Super Italian","Standard Italian", "lil'", "Supersized", "Cajun", "Delicious", "Michelle's Special", "New York Style", "Southern", "Greek", "Power", "California", ];
+
+  let title = Math.random() < 0.5? `${random(adj)} ${random(proteins)}` : random(proteins);
+  title = title.charAt(0).toUpperCase() + title.slice(1);
+  if (Math.random() < 0.8) title += " " + random(dishTypes);
+  title = title.toUpperCase();
+
+  // Move this BEFORE the return statement
+  if (title.includes("BLT") && Math.random() < 0.9) {
+    let words = title.split(" ");
+    //remove protein words from the title
+    words = words.filter(word => !proteins.some(protein =>
+      protein.toLowerCase().includes(word.toLowerCase()) ||
+      word.toLowerCase().includes(protein.toLowerCase())
+    ));
+    title = words.join(" ");
+  }
+
+  return title;
+}
+
+
+
+    // BLT OPTION
+    function generateBLTIngredients() {
+      const b = random(bWord);
+      const l = random(lWord);
+      const t = random(tWord);
+      return [b, l, t];
+    }
+
+    // === MAIN FUNCTION ===
+    function generateMenuItem() {
+      const title = generateTitle();
+      const lowerTitle = title.toLowerCase();
+
+      const requiredIngredients = proteins.filter(p => lowerTitle.includes(p.toLowerCase()))
+        .concat(veggies.filter(v => lowerTitle.includes(v.toLowerCase())));
+
+      const description = generateDescription(requiredIngredients, title);
+
+      const html = `<div class="title">${title}</div><br>${description}`;
+      document.getElementById("menuItem").innerHTML = html;
+    }
+  </script>
+
+</body>
+</html>
